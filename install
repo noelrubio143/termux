@@ -86,7 +86,7 @@ run_silently() {
 show_header() {
     clear_screen
     echo -e "${WHITE}╔══════════════════════════╗${NC}"
-    echo -e "${WHITE}  PHC_Jerico Termux Script ${NC}"
+    echo -e "${WHITE}  HOTVPN BY AMBER Termux Script ${NC}"
     echo -e "${WHITE}       Version: $VER        ${NC}"
     echo -e "${WHITE}╚══════════════════════════╝${NC}"
     echo
