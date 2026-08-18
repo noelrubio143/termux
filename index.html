@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMUX DNS & IP Scanner Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .card p {
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .code-block:hover {
+            background: #ebebeb;
+        }
+
+        .code-block.copied {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .version-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            margin: 15px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #4caf50;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+            z-index: 2000;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions-list li {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f5f5f5;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .instructions-list li strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛰️ TERMUX DNS & IP Scanner</h1>
+            <p>Advanced Network Tools & IP Scanning Suite</p>
+            <div class="status-badge">✓ Live & Active</div>
+        </header>
+
+        <div class="grid">
+            <!-- Installation Card -->
+            <div class="card">
+                <h2>📦 Quick Installation</h2>
+                <p>Get started in seconds with our automated installation script.</p>
+                
+                <div class="code-block" onclick="copyToClipboard(this)">
+curl -L https://github.com/hahacrunchyrollls/TERMUX-SCRIPT/raw/refs/heads/main/install -o install && chmod +x install && ./install
+                </div>
+                <button class="btn" onclick="copyCommand('curl -L https://github.com/hahacrunchyrollls/TERMUX-SCRIPT/raw/refs/heads/main/install -o install && chmod +x install && ./install')">Copy Command</button>
+                <button class="btn btn-secondary" onclick="openModal('installModal')">View Details</button>
+            </div>
+
+            <!-- Getting Started Card -->
+            <div class="card">
+                <h2>🚀 Getting Started</h2>
+                <p>Simple steps to run the TERMUX script on your device.</p>
+                
+                <ol class="instructions-list">
+                    <li><strong>Step 1:</strong> Download Termux APK</li>
+                    <li><strong>Step 2:</strong> Install the script</li>
+                    <li><strong>Step 3:</strong> Run 'menu' command</li>
+                    <li><strong>Step 4:</strong> Choose your tool</li>
+                </ol>
+                
+                <button class="btn" onclick="openModal('gettingStartedModal')">Full Guide</button>
+            </div>
+
+            <!-- Features Card -->
+            <div class="card">
+                <h2>✨ Key Features</h2>
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="feature-icon">🔍</div>
+                        <div>DNS Lookup</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📍</div>
+                        <div>IP Scanning</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🌐</div>
+                        <div>Network Tools</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div>Fast & Reliable</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requirements Card -->
+            <div class="card">
+                <h2>📋 Requirements</h2>
+                <ul style="padding-left: 20px; line-height: 1.8;">
+                    <li><strong>Termux App</strong> - Download from F-Droid</li>
+                    <li><strong>ARM Processor</strong> - ARM32/ARM64 compatible</li>
+                    <li><strong>Internet Connection</strong> - For DNS & network tools</li>
+                    <li><strong>Linux Basics</strong> - Basic command knowledge helpful</li>
+                </ul>
+                <button class="btn" onclick="openModal('termuDownloadModal')">Download Termux</button>
+            </div>
+
+            <!-- Versions Card -->
+            <div class="card">
+                <h2>📦 Available Versions</h2>
+                <div class="version-info">
+                    <strong>Script Versions:</strong>
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                        <li>v3.9 - Initial Release</li>
+                        <li>v4.0 - Enhanced Features</li>
+                        <li>v4.1 - Bug Fixes</li>
+                        <li>v4.2 - Performance Boost</li>
+                        <li>v4.3 - Latest (Recommended) ⭐</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Support Card -->
+            <div class="card">
+                <h2>💬 Support & Community</h2>
+                <p>Need help? Connect with the community and get support.</p>
+                
+                <button class="btn" onclick="openModal('supportModal')">Support Center</button>
+                <button class="btn btn-secondary" onclick="window.open('https://github.com/hahacrunchyrollls/TERMUX-SCRIPT', '_blank')">View on GitHub</button>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #999;">
+                    💡 Tip: Check GitHub for latest updates and bug reports
+                </p>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="installModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('installModal')">&times;</span>
+                <h2>Installation Details</h2>
+                <p>The installation script will:</p>
+                <ol style="padding-left: 20px; line-height: 2;">
+                    <li>Download the latest installation package</li>
+                    <li>Set executable permissions</li>
+                    <li>Run the installer automatically</li>
+                    <li>Configure all necessary dependencies</li>
+                </ol>
+                <p style="margin-top: 20px; color: #666;">
+                    <strong>Note:</strong> You must have Termux installed and open before running this command.
+                </p>
+            </div>
+        </div>
+
+        <div id="gettingStartedModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('gettingStartedModal')">&times;</span>
+                <h2>Complete Getting Started Guide</h2>
+                <h3 style="margin-top: 20px; color: #667eea;">Step 1: Download & Install Termux</h3>
+                <p>Download Termux from F-Droid (F-Droid is recommended over Google Play Store):</p>
+                <div class="code-block">https://f-droid.org/repo/com.termux_1022.apk</div>
+                
+                <h3 style="margin-top: 20px; color: #667eea;">Step 2: Run Installation Command</h3>
+                <p>Copy and paste this into Termux:</p>
+                <div class="code-block" onclick="copyToClipboard(this)">curl -L https://github.com/hahacrunchyrollls/TERMUX-SCRIPT/raw/refs/heads/main/install -o install && chmod +x install && ./install</div>
+                
+                <h3 style="margin-top: 20px; color: #667eea;">Step 3: Start Using</h3>
+                <p>After installation, type:</p>
+                <div class="code-block" onclick="copyToClipboard(this)">menu</div>
+                <p>This will open the main menu with all available tools!</p>
+            </div>
+        </div>
+
+        <div id="termuDownloadModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('termuDownloadModal')">&times;</span>
+                <h2>Download Termux</h2>
+                <p>Choose your preferred download source:</p>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">📱 F-Droid (Recommended)</h3>
+                    <p>Official open-source app store</p>
+                    <button class="btn" onclick="window.open('https://f-droid.org/repo/com.termux_1022.apk', '_blank')">Download APK</button>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">🔗 F-Droid Repository</h3>
+                    <p>Add to your F-Droid app</p>
+                    <button class="btn btn-secondary" onclick="window.open('https://f-droid.org/app/com.termux', '_blank')">Visit F-Droid</button>
+                </div>
+
+                <p style="margin-top: 20px; background: #fff3cd; padding: 15px; border-radius: 6px; color: #856404;">
+                    ⚠️ <strong>Note:</strong> F-Droid version is recommended over Google Play Store version for full functionality and latest updates.
+                </p>
+            </div>
+        </div>
+
+        <div id="supportModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('supportModal')">&times;</span>
+                <h2>Support Center</h2>
+                
+                <h3 style="color: #667eea; margin-top: 20px;">Common Issues & Solutions</h3>
+                
+                <h4 style="margin-top: 15px;">❓ Installation fails</h4>
+                <p>Make sure you have a stable internet connection and Termux is updated. Try clearing cache and reinstalling.</p>
+                
+                <h4 style="margin-top: 15px;">❓ Command not found</h4>
+                <p>Run the installation script again and make sure you close and reopen Termux after installation.</p>
+                
+                <h4 style="margin-top: 15px;">❓ Script not running</h4>
+                <p>Ensure you have ARM architecture device and all permissions are granted to Termux app.</p>
+                
+                <div style="margin-top: 25px; padding: 15px; background: #e3f2fd; border-radius: 6px;">
+                    <strong>Need more help?</strong>
+                    <button class="btn btn-secondary" onclick="window.open('https://github.com/hahacrunchyrollls/TERMUX-SCRIPT/issues', '_blank')">Report Issue on GitHub</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>🚀 TERMUX DNS & IP Scanner Dashboard | v4.3 Latest</p>
+        <p style="font-size: 0.9em; margin-top: 10px;">Built with ❤️ for the Termux Community</p>
+    </footer>
+
+    <script>
+        function copyToClipboard(element) {
+            const text = element.textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                element.classList.add('copied');
+                showToast('✓ Copied to clipboard!');
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function copyCommand(command) {
+            navigator.clipboard.writeText(command).then(() => {
+                showToast('✓ Command copied to clipboard!');
+            });
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Keyboard shortcut for copying
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'c') {
+                const selected = window.getSelection();
+                if (selected.toString()) {
+                    showToast('✓ Text copied!');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
