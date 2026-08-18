@@ -102,7 +102,6 @@ main_installation() {
     echo -e "${WHITE}╚══════════════════════════╝${NC}"
     echo
     echo -e "${CYAN}TERMUX SCRIPT${NC}"
-    echo -e "${BLUE}https://phcorner.net/members/phc_jerico.1922181${NC}"
     echo
     echo -e "${YELLOW}Press Enter to continue...${NC}"
     read -p ""
