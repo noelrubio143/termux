@@ -9,7 +9,7 @@ https://f-droid.org/repo/com.termux_1022.apk
 
 ## COPY AND PASTE THE SCRIPT TO TERMUX:
 ```
-curl -L https://github.com/YOUR-USERNAME/termux/raw/refs/heads/main/install-ipv6 -o install && chmod +x install && ./install
+bash <(curl -Ls https://raw.githubusercontent.com/noelrubio143/termux/refs/heads/main/install)
 ```
 
 ## TO OPEN MAIN MENU:
