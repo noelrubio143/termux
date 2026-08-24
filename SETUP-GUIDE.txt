@@ -1,0 +1,292 @@
+================================================================================
+   TERMUX SCRIPT - IPv6 ENABLED SETUP GUIDE
+================================================================================
+
+Version: 4.3-IPv6
+Updated: August 24, 2026
+
+================================================================================
+                          WHAT'S INCLUDED
+================================================================================
+
+This package contains enhanced versions of your Termux script with FULL IPv6 
+support while maintaining 100% IPv4 compatibility.
+
+FILES ADDED:
+-----------
+✓ install-ipv6-enabled         - Enhanced installer with IPv6 setup
+✓ ipv6-wrapper.sh               - IPv6 configuration wrapper/menu
+✓ QUICK-START-IPv6.sh           - Automatic IPv6 setup script
+✓ IPv6-README.md                - Complete documentation
+✓ SETUP-GUIDE.txt               - This file
+
+ORIGINAL FILES:
+-----------
+✓ install                       - Original installer (still works)
+✓ client                        - Binary client
+✓ index.html                    - Web dashboard
+✓ termux-script-version-*.      - Various script versions
+✓ All other original files      - Unchanged, fully compatible
+
+================================================================================
+                        QUICK START (3 STEPS)
+================================================================================
+
+FASTEST METHOD - Automatic Setup:
+
+  Step 1: Open Termux
+  Step 2: Run this ONE command:
+  
+    curl -L https://your-url/QUICK-START-IPv6.sh | bash
+  
+  Step 3: Type after setup:
+  
+    network-config status
+
+DONE! Your Termux script now supports IPv6.
+
+================================================================================
+                      INSTALLATION OPTIONS
+================================================================================
+
+OPTION 1: Enhanced Installer (Recommended)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This is the easiest method. It installs everything with one command.
+
+  chmod +x install-ipv6-enabled
+  ./install-ipv6-enabled
+
+Benefits:
+  ✓ Automatic IPv6 configuration
+  ✓ DNS setup for dual-stack
+  ✓ All dependencies installed
+  ✓ Ready to use immediately
+
+---
+
+OPTION 2: Quick-Start Script (Automatic)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This script automates the entire setup process.
+
+  chmod +x QUICK-START-IPv6.sh
+  ./QUICK-START-IPv6.sh
+
+Benefits:
+  ✓ One-command setup
+  ✓ Automatic directory creation
+  ✓ Dependencies installed
+  ✓ Environment configured
+
+---
+
+OPTION 3: Manual Setup
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+For advanced users who want full control.
+
+Step 1: Install original script
+  chmod +x install
+  ./install
+
+Step 2: Set up IPv6 wrapper
+  chmod +x ipv6-wrapper.sh
+  mkdir -p ~/.local/bin
+  cp ipv6-wrapper.sh ~/.local/bin/ipv6-menu
+  
+Step 3: Run IPv6 menu
+  ~/.local/bin/ipv6-menu
+
+---
+
+OPTION 4: Use Existing Installation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+If you already have Termux script installed:
+
+  chmod +x ipv6-wrapper.sh
+  ./ipv6-wrapper.sh
+
+This overlays IPv6 support on your existing installation.
+
+================================================================================
+                        AFTER INSTALLATION
+================================================================================
+
+DEFAULT COMMAND:
+  menu                    - Opens main Termux menu (with IPv6 support)
+
+NETWORK CONFIGURATION:
+  network-config status   - Check IPv4/IPv6 connectivity
+  network-config ipv4     - Use IPv4 only
+  network-config ipv6     - Use IPv6 only  
+  network-config dual     - Use both (recommended)
+
+ADVANCED MENU:
+  ipv6-menu               - Full IPv6 configuration menu
+  
+OPTIONS IN MENU:
+  1 - Show IPv6 Status
+  2 - Enable IPv6
+  3 - Configure DNS
+  4 - Setup IPv6 Environment
+  5 - View Configuration Log
+  6 - Run Main Termux Menu
+  0 - Exit
+
+================================================================================
+                        WHAT GETS CONFIGURED
+================================================================================
+
+✓ IPv6 System Support
+  - Enabled via sysctl if available
+  - Enabled via /proc if sysctl unavailable
+
+✓ DNS Configuration
+  - IPv4 DNS: 8.8.8.8, 8.8.4.4, 1.1.1.1, 1.0.0.1
+  - IPv6 DNS: 2001:4860:4860::8888, 2606:4700:4700::1111 + more
+
+✓ Environment Variables
+  - ENABLE_IPV6=1
+  - USE_IPV6=1
+  - DUAL_STACK=true
+  - And more...
+
+✓ Tools & Utilities
+  - network-config: Easy mode switching
+  - IPv6 status checking
+  - Connectivity testing
+  - Activity logging
+
+✓ Configuration Files
+  - ~/.config/termux-ipv6/ipv6.conf
+  - ~/.config/termux-ipv6/dns.conf
+  - ~/.config/termux-ipv6/ipv6.log
+
+================================================================================
+                        TROUBLESHOOTING
+================================================================================
+
+ISSUE: "IPv6 Connectivity ✗ Offline"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This is NORMAL! It doesn't mean anything is broken.
+
+Why: Not all networks provide IPv6 connectivity.
+
+Solution: The script automatically falls back to IPv4.
+  ✓ IPv4 still works perfectly
+  ✓ Script functions normally
+  ✓ No action needed
+
+To verify IPv6 on your network: Ask your ISP/network provider.
+
+---
+
+ISSUE: "ping6: command not found"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Solution:
+  apt install iputils
+
+---
+
+ISSUE: IPv6 not enabling
+━━━━━━━━━━━━━━━━━━━━━━
+Try the wrapper menu option 2 (Enable IPv6):
+  ipv6-menu
+  [Select option 2]
+
+Or manually:
+  sysctl -w net.ipv6.conf.all.disable_ipv6=0
+
+---
+
+ISSUE: Need to check status
+━━━━━━━━━━━━━━━━━━━━━━━
+  network-config status
+  
+Or use full menu:
+  ipv6-menu
+  [Select option 1]
+
+---
+
+ISSUE: Want to see configuration log
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+View with:
+  cat ~/.config/termux-ipv6/ipv6.log
+
+Or use menu:
+  ipv6-menu
+  [Select option 5]
+
+================================================================================
+                        IMPORTANT NOTES
+================================================================================
+
+✓ IPv4 is NOT affected
+  Your existing IPv4 setup continues to work perfectly.
+
+✓ IPv6 is optional
+  The script works great with just IPv4. IPv6 is an enhancement.
+
+✓ Not all networks have IPv6
+  That's okay! The script handles this automatically.
+
+✓ No breaking changes
+  All original functionality is preserved.
+
+✓ Easy to switch modes
+  Switch between IPv4/IPv6/Dual-Stack anytime with:
+    network-config [ipv4|ipv6|dual]
+
+✓ Automatic fallback
+  If IPv6 is unavailable, IPv4 is used automatically.
+
+✓ Secure by default
+  Same security as original. No additional vulnerabilities.
+
+✓ Logging enabled
+  All configuration changes are logged for troubleshooting.
+
+================================================================================
+                        QUICK REFERENCE
+================================================================================
+
+Action                          Command
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Setup (automatic)               ./QUICK-START-IPv6.sh
+Setup (enhanced installer)      ./install-ipv6-enabled
+Interactive menu                ipv6-menu
+Main menu (with IPv6)           menu
+Check status                    network-config status
+Use IPv4 only                   network-config ipv4
+Use IPv6 only                   network-config ipv6
+Use both (recommended)          network-config dual
+View log                        cat ~/.config/termux-ipv6/ipv6.log
+Reset configuration             rm -rf ~/.config/termux-ipv6
+
+================================================================================
+                        SUPPORT
+================================================================================
+
+For issues or questions:
+
+1. Check the log:
+   cat ~/.config/termux-ipv6/ipv6.log
+
+2. Run status check:
+   network-config status
+
+3. Read full documentation:
+   View the IPv6-README.md file
+
+4. Try manual setup:
+   ./QUICK-START-IPv6.sh
+
+5. Check GitHub issues (if available)
+
+================================================================================
+
+Thank you for using the IPv6-enabled Termux Script!
+
+Version 4.3-IPv6
+Stable ✓ | Production Ready ✓
+
+================================================================================
